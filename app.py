@@ -1,11 +1,13 @@
 """Dashboard Streamlit untuk Rental Alat Camping Jelajah Alam."""
 from datetime import datetime
+import sqlite3
 
 import streamlit as st
 
 from alat import AlatCamping, AlatMasak, AlatShelter
 from exceptions import RentalError
 from laporan import Laporan, rupiah
+from persistence import load_state, save_state
 from penyewa import DaftarPenyewa, Penyewa, PenyewaPendaki
 from penyewaan import Penyewaan
 
@@ -60,28 +62,42 @@ st.markdown(
 
 def initialize_state():
     if "catalog" not in st.session_state:
-        st.session_state.catalog = {
-            "A01": AlatShelter("A01", "Tenda Dome 4 Orang", 40000, 3, kapasitas_orang=4),
-            "A02": AlatShelter("A02", "Sleeping Bag", 10000, 10),
-            "A03": AlatMasak("A03", "Kompor Portable", 8000, 4, biaya_gas=5000),
-            "A04": AlatCamping("A04", "Headlamp", 5000, 12),
-        }
-    if "registry" not in st.session_state:
-        registry = DaftarPenyewa()
-        renters = [
-            Penyewa("P01", "Raka Pratama"),
-            PenyewaPendaki("P02", "Dinda Lestari", diskon_persen=10),
-        ]
-        for renter in renters:
-            registry.daftarkan(renter)
-        st.session_state.registry = registry
-        st.session_state.renters = {r.id_penyewa: r for r in renters}
-    if "rentals" not in st.session_state:
-        st.session_state.rentals = []
-    if "report" not in st.session_state:
-        st.session_state.report = Laporan("Jelajah Alam Rental")
+        restored = load_state()
+        if restored is not None:
+            (st.session_state.catalog, st.session_state.renters,
+             st.session_state.registry, st.session_state.rentals,
+             st.session_state.report) = restored
+        else:
+            st.session_state.catalog = {
+                "A01": AlatShelter("A01", "Tenda Dome 4 Orang", 40000, 3, kapasitas_orang=4),
+                "A02": AlatShelter("A02", "Sleeping Bag", 10000, 10),
+                "A03": AlatMasak("A03", "Kompor Portable", 8000, 4, biaya_gas=5000),
+                "A04": AlatCamping("A04", "Headlamp", 5000, 12),
+            }
+            registry = DaftarPenyewa()
+            renters = [
+                Penyewa("P01", "Raka Pratama"),
+                PenyewaPendaki("P02", "Dinda Lestari", diskon_persen=10),
+            ]
+            for renter in renters:
+                registry.daftarkan(renter)
+            st.session_state.registry = registry
+            st.session_state.renters = {r.id_penyewa: r for r in renters}
+            st.session_state.rentals = []
+            st.session_state.report = Laporan("Jelajah Alam Rental")
     if "draft" not in st.session_state:
         st.session_state.draft = []
+
+
+def persist_state():
+    try:
+        save_state(
+            st.session_state.catalog,
+            st.session_state.renters,
+            st.session_state.rentals,
+        )
+    except (OSError, sqlite3.Error) as error:
+        st.error(f"Perubahan belum tersimpan ke database lokal: {error}")
 
 
 def page_header(title, subtitle):
@@ -173,6 +189,7 @@ def catalog_page():
                         else:
                             item = AlatCamping(normalized_code, name, rate, stock)
                         catalog[normalized_code] = item
+                        persist_state()
                         st.success(f"{name.strip()} berhasil ditambahkan.")
                         st.rerun()
                     except RentalError as error:
@@ -212,6 +229,7 @@ def renters_page():
                                   if member else Penyewa(normalized_id, renter_name))
                         st.session_state.registry.daftarkan(renter)
                         renters[normalized_id] = renter
+                        persist_state()
                         st.success(f"{renter_name.strip()} berhasil didaftarkan.")
                         st.rerun()
                     except RentalError as error:
@@ -276,6 +294,7 @@ def rental_page():
                 st.session_state.report.catat(rental)
                 st.session_state.rentals.append(rental)
                 st.session_state.draft = []
+                persist_state()
                 st.success("Transaksi berhasil diproses dan stok telah diperbarui.")
                 st.code(st.session_state.report.cetak_nota(rental))
             except RentalError as error:
@@ -302,6 +321,7 @@ def returns_page():
             if details[3].button("Terima kembali", key=f"return_{rental.id_penyewaan}", type="primary"):
                 try:
                     rental.kembalikan()
+                    persist_state()
                     st.success(f"{rental.id_penyewaan} selesai dikembalikan.")
                     st.rerun()
                 except RentalError as error:
