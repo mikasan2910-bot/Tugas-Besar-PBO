@@ -32,34 +32,93 @@ st.markdown(
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
     :root {
         --forest: #173c32;
-        --forest-deep: #102c25;
-        --leaf: #c9ef72;
-        --paper: #f5f6ef;
-        --ink: #1b2822;
-        --muted: #718078;
-        --line: #dfe5dc;
-        --coral: #e67d5e;
+        --forest-deep: #0e2620;
+        --leaf: #d7f783;
+        --paper: #f7f8f3;
+        --card: #ffffff;
+        --ink: #111b16;
+        --muted: #3f4e47;
+        --line: #c9d2c7;
     }
     html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; color: var(--ink); }
-    .stApp { background: var(--paper); }
-    [data-testid="stSidebar"] { background: var(--forest-deep); }
-    [data-testid="stSidebar"] * { color: #f5f6ef; }
+    .stApp, [data-testid="stHeader"] { background: var(--paper) !important; color: var(--ink); }
+
+    /* Teks gelap kontras tinggi untuk seluruh konten utama */
+    [data-testid="stMain"] h1,
+    [data-testid="stMain"] h2,
+    [data-testid="stMain"] h3,
+    [data-testid="stMain"] p,
+    [data-testid="stMain"] strong,
+    [data-testid="stMain"] label,
+    [data-testid="stMain"] [data-testid="stExpander"] summary,
+    [data-testid="stMain"] [data-testid="stExpander"] summary * {
+        color: var(--ink) !important;
+    }
+
+    /* Kotak Expander (misal: Daftarkan penyewa) -> latar putih terang & garis tegas */
+    [data-testid="stMain"] [data-testid="stExpander"] {
+        background: var(--card) !important;
+        border: 1.5px solid var(--line) !important;
+        border-radius: 7px !important;
+    }
+    [data-testid="stMain"] [data-testid="stExpander"] summary {
+        background: #eef2ea !important;
+        border-radius: 6px !important;
+    }
+
+    /* Kotak notifikasi (info, success, warning, error) -> latar terang + teks hitam + garis tepi kiri tebal (ramah buta warna) */
+    [data-testid="stMain"] [data-testid="stAlert"],
+    [data-testid="stMain"] [data-baseweb="notification"] {
+        background: #edf2f7 !important;
+        border: 1px solid #9fb3c8 !important;
+        border-left: 6px solid #1d4ed8 !important;
+        border-radius: 6px !important;
+    }
+    [data-testid="stMain"] [data-testid="stAlert"] *,
+    [data-testid="stMain"] [data-baseweb="notification"] * {
+        color: #0f172a !important;
+        font-weight: 500 !important;
+    }
+
+    /* Sidebar tetap gelap pekat dengan teks putih terang */
+    [data-testid="stSidebar"] { background: var(--forest-deep) !important; }
+    [data-testid="stSidebar"] * { color: #f8faf7 !important; }
     [data-testid="stSidebar"] [data-testid="stRadio"] label { padding: .38rem .2rem; }
+    .brand-mark { color: var(--leaf) !important; font: 700 1.2rem 'Space Grotesk', sans-serif; }
+
+    /* Banner sambutan */
+    .welcome { background: var(--forest); padding: 1.4rem 1.6rem; border-radius: 7px; margin: .4rem 0 1.4rem; }
+    .welcome .eyebrow { color: var(--leaf) !important; }
+    .welcome h2 { color: #ffffff !important; margin: .2rem 0 .35rem; }
+    .welcome p { color: #e2ebe5 !important; margin: 0; }
+
+    /* Tombol utama -> hijau tua pekat dengan teks putih terang */
+    [data-testid="stMain"] div.stButton > button,
+    [data-testid="stMain"] div.stFormSubmitButton > button {
+        background: var(--forest) !important;
+        border: 1.5px solid var(--forest-deep) !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+    [data-testid="stMain"] div.stButton > button *,
+    [data-testid="stMain"] div.stFormSubmitButton > button * {
+        color: #ffffff !important;
+    }
+    [data-testid="stMain"] div.stButton > button:hover,
+    [data-testid="stMain"] div.stFormSubmitButton > button:hover {
+        background: var(--forest-deep) !important;
+    }
+
+    /* Tipografi & kartu metrik */
     h1, h2, h3 { font-family: 'Space Grotesk', sans-serif !important; letter-spacing: 0 !important; }
     h1 { font-size: 2rem !important; }
     h2 { font-size: 1.35rem !important; }
     h3 { font-size: 1.05rem !important; }
-    [data-testid="stMetric"] { background: white; border: 1px solid var(--line); padding: 1rem 1.1rem; border-radius: 6px; }
-    [data-testid="stMetricLabel"] { color: var(--muted); font-size: .82rem; }
-    [data-testid="stMetricValue"] { font-family: 'Space Grotesk', sans-serif; color: var(--forest); font-size: 1.2rem !important; }
-    div.stButton > button[kind="primary"] { background: var(--forest); border-color: var(--forest); color: white; }
-    div.stButton > button[kind="primary"]:hover { background: var(--forest-deep); border-color: var(--forest-deep); }
-    .brand-mark { color: var(--leaf); font: 700 1.2rem 'Space Grotesk', sans-serif; }
-    .eyebrow { color: var(--muted); text-transform: uppercase; font-size: .73rem; font-weight: 700; letter-spacing: 1px; }
-    .welcome { background: var(--forest); color: white; padding: 1.4rem 1.6rem; border-radius: 7px; margin: .4rem 0 1.4rem; }
-    .welcome h2 { color: white !important; margin: .2rem 0 .35rem; }
-    .welcome p { color: #d3ded7; margin: 0; }
-    .stock-low { color: #b34f36; font-weight: 700; }
+    [data-testid="stMetric"] { background: var(--card); border: 1.5px solid var(--line); padding: 1rem 1.1rem; border-radius: 6px; }
+    [data-testid="stMetricLabel"], [data-testid="stMetricLabel"] * { color: var(--muted) !important; font-size: .85rem; font-weight: 600; }
+    [data-testid="stMetricValue"], [data-testid="stMetricValue"] * { font-family: 'Space Grotesk', sans-serif; color: var(--forest-deep) !important; font-size: 1.25rem !important; }
+    .eyebrow { color: var(--muted) !important; text-transform: uppercase; font-size: .75rem; font-weight: 700; letter-spacing: 1px; }
+    .stock-low { color: #9a3412 !important; font-weight: 700; text-decoration: underline; }
     </style>
     """,
     unsafe_allow_html=True,
