@@ -54,7 +54,7 @@ class AlatCamping:
 
     def tersedia(self, jumlah=1):
         if not isinstance(jumlah, int) or isinstance(jumlah, bool) or jumlah <= 0:
-            return False
+            raise DataTidakValidError("Jumlah harus bilangan bulat lebih dari 0")
         return self.__stok >= jumlah
 
     def kurangi_stok(self, jumlah):
